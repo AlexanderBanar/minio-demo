@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+
+</head>
+
+<body>
+
+    <div class="box-all">
+
+        <div class="box-head">
+
+            <div class="cont-path">
+                Папки:
+            </div>
+
+            <div class="cont-path-folder" th:each="folder : ${folders}">
+                <a th:href="/folder" th:text="${folder.name}" th:name="${folder.name}"></a>
+            </div>
+
+        </div>
+
+        <div class="box-body">
+
+            <div class="cont-row">
+
+                <div>
+                    <a href="/load">
+                        <button class="cont-load">Загрузить файл</button>
+                    </a>
+                </div>
+
+                <div>
+                    <a href="/create">
+                        <button class="cont-create">Создать папку</button>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="cont-row" th:each="directory : ${directories}">
+
+                <div class="cont-folder-img"></div>
+
+                <div class="cont-item-name" th:text="${directory.name}"></div>
+
+                <div>
+                    <a th:href="@{/folder/{id}(id=${directory.id})}">
+                        <button class="cont-item-options">перейти в папку</button>
+                    </a>
+                </div>
+
+                <div>
+                    <a th:href="@{/folder/rename/{id}(id=${directory.id})}">
+                        <button class="cont-item-options">переименовать</button>
+                    </a>
+                </div>
+
+                <div>
+                    <a th:href="@{/folder/delete/{id}(id=${directory.id})}">
+                        <button class="cont-item-options">удалить</button>
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="cont-row" th:each="file : ${files}">
+
+                <div class="cont-file-img"></div>
+
+                <div class="cont-item-name" th:text="${file.name}">file</div>
+
+                <div>
+                    <a th:href="@{/file/{id}(id=${file.id})}">
+                        <button class="cont-item-options">скачать файл</button>
+                    </a>
+                </div>
+
+                <div>
+                    <a th:href="@{/file/rename/{id}(id=${file.id})}">
+                        <button class="cont-item-options">переименовать</button>
+                    </a>
+                </div>
+
+                <div>
+                    <a th:href="@{/file/delete/{id}(id=${file.id})}">
+                        <button class="cont-item-options">удалить</button>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
