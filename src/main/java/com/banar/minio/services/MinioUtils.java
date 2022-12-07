@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 @Service
 public class MinioUtils {
-    private final String BUCKET = "banar";
+    private final String BUCKET = "bucket";
     private final MinioClient minioClient;
 
     public MinioUtils() {
@@ -124,7 +124,28 @@ public class MinioUtils {
     }
 
 
+    public List<Element> extractOpenFolders(String currentPath) {
 
+        // "/folder1"
 
+        List<Element> result = new ArrayList<>();
+        String[] split = currentPath.split("/");
 
+        Map<Integer, String> map = new HashMap<>();
+        for (int i = 0; i < split.length; i++) {
+            if (split[i].isEmpty()) {
+                continue;
+            }
+            map.put(i, split[i]);
+        }
+        result.add(new Element("ROOT", "", true));
+        for (int i = 1; i < map.size(); i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j <= i; j++) {
+                sb.append(map.get(j)).append("/");
+            }
+            result.add(new Element(split[i], sb.toString(), true));
+        }
+        return result;
+    }
 }

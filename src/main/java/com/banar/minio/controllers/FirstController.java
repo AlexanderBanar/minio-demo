@@ -48,29 +48,33 @@ public class FirstController {
         List<Element> elements = minioUtils.listElements();
 
         List<Element> folders = new LinkedList<>();
-        folders.add(new Element("ROOT", "folder0", true));
+        folders.add(new Element("ROOT", "", true));
 
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
         model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
+        model.addAttribute("currentPath", "");
         return "mainMinio";
     }
 
-    @GetMapping("/folder")
-    public String openFolder(@RequestParam("id") String name, Model model) {
-        if (name.equals("folder0")) {
-            return "redirect:/";
-        }
-        System.out.println(name);
+    @PostMapping("/openFolder")
+    public String openFolder(@RequestParam("currentPath") String currentPath,
+                             @RequestParam("name") String name,
+                             Model model) {
 
-        List<Element> elements = minioUtils.listElements(name);
+        System.out.println(currentPath); // ""
+        System.out.println(name); // "folder1"
 
-        List<Element> folders = new LinkedList<>();
-        folders.add(new Element("ROOT", "folder0", true));
+        String requestedFolder = currentPath + "/" + name; // "/folder1"
+
+        List<Element> elements = minioUtils.listElements(requestedFolder);
+
+        List<Element> folders = minioUtils.extractOpenFolders(currentPath);
 
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
         model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
+        model.addAttribute("currentPath", requestedFolder);
 
         return "mainMinio";
     }

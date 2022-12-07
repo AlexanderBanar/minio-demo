@@ -20,7 +20,14 @@
             </div>
 
             <div class="cont-path-folder" th:each="folder : ${folders}">
-                <a th:href="/folder" th:text="${folder.name}" th:name="${folder.name}"></a>
+
+                <form action="/openFolder" method="post">
+                    <input type="hidden" th:name="currentPath" th:value="${folder.id}">
+                    <input type="hidden" name="name" value="">
+                    <a href="#" onclick="this.parentNode.submit();" th:text="${folder.name}"></a>
+                </form>
+
+
             </div>
 
         </div>
@@ -50,9 +57,11 @@
                 <div class="cont-item-name" th:text="${directory.name}"></div>
 
                 <div>
-                    <a th:href="@{/folder/{id}(id=${directory.id})}">
-                        <button class="cont-item-options">перейти в папку</button>
-                    </a>
+                    <form action="/openFolder" method="post">
+                        <input type="hidden" th:name="currentPath" th:value="${currentPath}">
+                        <input type="hidden" th:name="name" th:value="${directory.name}">
+                        <button type="submit" class="cont-item-options">перейти в папку</button>
+                    </form>
                 </div>
 
                 <div>
