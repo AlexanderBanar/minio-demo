@@ -126,14 +126,19 @@ public class MinioUtils {
 
     public List<Element> extractOpenFolders(String currentPath) {
 
-        System.out.println(currentPath);
 
         List<Element> result = new ArrayList<>();
         String[] split = currentPath.split("/");
 
         Map<Integer, String> map = new HashMap<>();
         for (int i = 0; i < split.length; i++) {
-            map.put(i, split[i]);
+            String folderName = split[i];
+            if (folderName.equals("ROOT")
+                    || folderName.isEmpty()
+                    || folderName.isBlank()) {
+                continue;
+            }
+            map.put(i, folderName);
         }
 
         result.add(new Element("ROOT", "", true));
@@ -142,11 +147,8 @@ public class MinioUtils {
         String pathToFolder;
         for (int i = 0; i < map.size(); i++) {
             if (i == 0) {
-                pathToFolder = "";
+                pathToFolder = "ROOT";
             } else {
-//                for (int j = 0; j < i; j++) {
-//                    sb.append(map.get(j)).append("/");
-//                }
 
                 sb.append(map.get(i - 1));
                 sb.append("/");
@@ -156,9 +158,7 @@ public class MinioUtils {
             result.add(new Element(map.get(i), pathToFolder, true));
         }
 
-        for (Element el : result) {
-            System.out.println(el.getId());
-        }
+
 
         return result;
     }

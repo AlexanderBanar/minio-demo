@@ -65,6 +65,7 @@ public class FirstController {
         }
 
         String requestedFolder = currentPath + "/" + name;
+        System.out.println(requestedFolder);
         List<Element> elements = minioUtils.listElements(requestedFolder);
         List<Element> folders = minioUtils.extractOpenFolders(requestedFolder);
 
