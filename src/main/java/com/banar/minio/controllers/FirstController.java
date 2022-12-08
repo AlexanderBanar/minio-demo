@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,10 +47,8 @@ public class FirstController {
     @GetMapping()
     public String mainPage(Model model) {
         List<Element> elements = minioUtils.listElements();
-
-        List<Element> folders = new LinkedList<>();
+        List<Element> folders = new ArrayList<>();
         folders.add(new Element("ROOT", "", true));
-
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
         model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
@@ -61,15 +60,17 @@ public class FirstController {
     public String openFolder(@RequestParam("currentPath") String currentPath,
                              @RequestParam("name") String name,
                              Model model) {
+        if (name.equals("ROOT")) {
+            return "redirect:/";
+        }
 
-        System.out.println(currentPath); // ""
-        System.out.println(name); // "folder1"
-
-        String requestedFolder = currentPath + "/" + name; // "/folder1"
-
+        String requestedFolder = currentPath + "/" + name;
         List<Element> elements = minioUtils.listElements(requestedFolder);
+        List<Element> folders = minioUtils.extractOpenFolders(requestedFolder);
 
-        List<Element> folders = minioUtils.extractOpenFolders(currentPath);
+//        for (Element el : folders) {
+//            System.out.println("id: " + el.getId() + "; name: " + el.getName());
+//        }
 
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
