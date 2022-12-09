@@ -63,16 +63,9 @@ public class FirstController {
         if (name.equals("ROOT")) {
             return "redirect:/";
         }
-
         String requestedFolder = currentPath + "/" + name;
-        System.out.println(requestedFolder);
         List<Element> elements = minioUtils.listElements(requestedFolder);
         List<Element> folders = minioUtils.extractOpenFolders(requestedFolder);
-
-//        for (Element el : folders) {
-//            System.out.println("id: " + el.getId() + "; name: " + el.getName());
-//        }
-
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
         model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
@@ -80,12 +73,6 @@ public class FirstController {
 
         return "mainMinio";
     }
-
-    // folders - list of entered folders (folder.name + folder.id)
-    // directories - list of folders in the current folder (folder.name + folder.id)
-    // files - list of files in the current folder (file.name + file.id)
-
-
 
 
 

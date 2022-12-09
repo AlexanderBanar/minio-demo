@@ -4,6 +4,7 @@ import com.banar.minio.models.Element;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -82,13 +83,23 @@ public class MinioUtils {
     }
 
     public List<Element> listElements(String folder) {
-        String fullPath = folder + "/";
+        String fullPath = getFullPath(folder);
         Iterable<Result<Item>> iterable = minioClient.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(BUCKET)
                         .prefix(fullPath)
                         .build());
         return convert(iterable);
+    }
+
+    private String getFullPath(String folder) {
+        if (folder.contains("ROOT/")) {
+            folder = folder.replace("ROOT/", "");
+        }
+        while(folder.contains("//")) {
+            folder = folder.replace("//", "/");
+        }
+        return folder + "/";
     }
 
     private List<Element> convert(Iterable<Result<Item>> iterable) {
@@ -125,41 +136,40 @@ public class MinioUtils {
 
 
     public List<Element> extractOpenFolders(String currentPath) {
-
-
-        List<Element> result = new ArrayList<>();
         String[] split = currentPath.split("/");
+        Map<Integer, String> map = getFoldersMap(split);
+        return extracted(map);
+    }
 
-        Map<Integer, String> map = new HashMap<>();
-        for (int i = 0; i < split.length; i++) {
-            String folderName = split[i];
-            if (folderName.equals("ROOT")
-                    || folderName.isEmpty()
-                    || folderName.isBlank()) {
-                continue;
-            }
-            map.put(i, folderName);
-        }
-
+    private List<Element> extracted(Map<Integer, String> map) {
+        StringBuilder sb = new StringBuilder();
+        List<Element> result = new ArrayList<>();
         result.add(new Element("ROOT", "", true));
-
-        StringBuilder sb = new StringBuilder();;
         String pathToFolder;
         for (int i = 0; i < map.size(); i++) {
             if (i == 0) {
                 pathToFolder = "ROOT";
             } else {
-
                 sb.append(map.get(i - 1));
                 sb.append("/");
                 pathToFolder = sb.toString();
-
             }
             result.add(new Element(map.get(i), pathToFolder, true));
         }
-
-
-
         return result;
+    }
+
+    private Map<Integer, String> getFoldersMap(String[] split) {
+        Map<Integer, String> map = new HashMap<>();
+        int count = 0;
+        for (String folderName : split) {
+            if (folderName.equals("ROOT")
+                    || folderName.isEmpty()
+                    || folderName.isBlank()) {
+                continue;
+            }
+            map.put(count++, folderName);
+        }
+        return map;
     }
 }
