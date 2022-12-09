@@ -16,18 +16,15 @@
         <div class="box-head">
 
             <div class="cont-path">
-                Открытые папки:
+                Текущая папка:
             </div>
 
             <div class="cont-path-folder" th:each="folder : ${folders}">
-
                 <form action="/openFolder" method="post">
                     <input type="hidden" th:name="currentPath" th:value="${folder.id}">
                     <input type="hidden" th:name="name" th:value="${folder.name}">
                     <a href="#" onclick="this.parentNode.submit();" th:text="${folder.name}"></a>
                 </form>
-
-
             </div>
 
         </div>
@@ -37,9 +34,10 @@
             <div class="cont-row">
 
                 <div>
-                    <a href="/load">
-                        <button class="cont-load">Загрузить файл</button>
-                    </a>
+                    <form action="/uploadRequest" method="post">
+                        <input type="hidden" th:name="openedFolder" th:value="${openedFolder}">
+                        <button type="submit" class="cont-load">Загрузить файл</button>
+                    </form>
                 </div>
 
                 <div>
