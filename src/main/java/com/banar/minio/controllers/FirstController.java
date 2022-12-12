@@ -39,11 +39,7 @@ public class FirstController {
             throws IOException, ErrorResponseException,
             InsufficientDataException, InternalException, InvalidResponseException,
             NoSuchAlgorithmException, XmlParserException, ServerException, InvalidKeyException {
-
-        //tb checked if correct full name
         String fileFullName = openedFolder + "/" + multipartFile.getOriginalFilename();
-
-
         minioUtils.uploadFile(
                 fileFullName,
                 multipartFile.getContentType(),
@@ -74,16 +70,12 @@ public class FirstController {
         List<Element> elements = minioUtils.listElements(requestedFolder);
         List<Element> folders = minioUtils.extractOpenFolders(requestedFolder);
         Element openedDir = folders.get(folders.size() - 1);
-
-        // tb checked if slash is between name and id(path to folder)
-        String openedFolder = openedDir.getId().concat(openedDir.getId());
-
+        String openedFolder = openedDir.getId().concat(name);
         model.addAttribute("openedFolder", openedFolder);
         model.addAttribute("folders", folders);
         model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
         model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
         model.addAttribute("currentPath", requestedFolder);
-
         return "mainMinio";
     }
 
