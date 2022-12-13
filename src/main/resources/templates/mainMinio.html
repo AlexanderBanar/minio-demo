@@ -69,9 +69,10 @@
                 </div>
 
                 <div>
-                    <a th:href="@{/folder/delete/{id}(id=${directory.id})}">
-                        <button class="cont-item-options">удалить</button>
-                    </a>
+                    <form action="/delete" method="post">
+                        <input type="hidden" th:name="fullName" th:value="${directory.id}">
+                        <button type="submit" class="cont-item-options">удалить</button>
+                    </form>
                 </div>
 
             </div>
@@ -89,15 +90,16 @@
                 </div>
 
                 <div>
-                    <a th:href="@{/file/rename/{id}(id=${file.id})}">
+                    <a th:href="@{/rename/{id}(id=${file.id})}">
                         <button class="cont-item-options">переименовать</button>
                     </a>
                 </div>
 
                 <div>
-                    <a th:href="@{/file/delete/{id}(id=${file.id})}">
-                        <button class="cont-item-options">удалить</button>
-                    </a>
+                    <form action="/delete" method="post">
+                        <input type="hidden" th:name="fullName" th:value="${file.id}">
+                        <button type="submit" class="cont-item-options">удалить</button>
+                    </form>
                 </div>
 
             </div>

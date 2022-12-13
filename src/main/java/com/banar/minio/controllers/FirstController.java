@@ -44,7 +44,7 @@ public class FirstController {
                 fileFullName,
                 multipartFile.getContentType(),
                 multipartFile.getInputStream());
-        return "message";
+        return "redirect:/";
     }
 
     @GetMapping()
@@ -84,6 +84,12 @@ public class FirstController {
                               Model model) {
         model.addAttribute("openedFolder", openedFolder);
         return "uploadPage";
+    }
+
+    @PostMapping("/delete")
+    public String deleteElement(@RequestParam("fullName") String fullName) {
+        minioUtils.deleteElement(fullName);
+        return "redirect:/";
     }
 
 

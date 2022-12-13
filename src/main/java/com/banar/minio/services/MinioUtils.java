@@ -4,7 +4,6 @@ import com.banar.minio.models.Element;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,13 +39,6 @@ public class MinioUtils {
                         .stream(inputStream, inputStream.available(), -1)
                         .build()
         );
-
-//        удаление файла
-//        minioClient.removeObject(
-//                RemoveObjectArgs.builder()
-//                        .bucket(BUCKET)
-//                        .object("read.txt")
-//                        .build());
 
         minioClient.removeObject(
                 RemoveObjectArgs.builder()
@@ -138,10 +130,10 @@ public class MinioUtils {
     public List<Element> extractOpenFolders(String currentPath) {
         String[] split = currentPath.split("/");
         Map<Integer, String> map = getFoldersMap(split);
-        return extracted(map);
+        return getOpenFolders(map);
     }
 
-    private List<Element> extracted(Map<Integer, String> map) {
+    private List<Element> getOpenFolders(Map<Integer, String> map) {
         StringBuilder sb = new StringBuilder();
         List<Element> result = new ArrayList<>();
         result.add(new Element("ROOT", "", true));
@@ -171,5 +163,19 @@ public class MinioUtils {
             map.put(count++, folderName);
         }
         return map;
+    }
+
+    public void deleteElement(String fullName) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(BUCKET)
+                            .object(fullName)
+                            .build());
+        } catch (ErrorResponseException | InsufficientDataException | InternalException
+                | InvalidKeyException | InvalidResponseException | IOException
+                | NoSuchAlgorithmException | ServerException | XmlParserException e) {
+            e.printStackTrace();
+        }
     }
 }
