@@ -6,6 +6,8 @@ import io.minio.errors.*;
 import io.minio.messages.Item;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
@@ -17,6 +19,8 @@ import java.util.function.Predicate;
 public class MinioUtils {
     private final String BUCKET = "bucket";
     private final MinioClient minioClient;
+    private final String emptyFileShortName = "emptyFileNotTbDeleted.txt";
+    private final String emptyFileFullName = "src/main/resources/static/support/emptyFileNotTbDeleted.txt";
 
     public MinioUtils() {
         minioClient = MinioClient.builder()
@@ -57,13 +61,6 @@ public class MinioUtils {
 
         // чтобы удалить папку - удаляем ее содержимое - далее пустая папка удалится сама автоматически
 
-//        перечисление содержимого папки folder в бакете banar
-//        Iterable<Result<Item>> results = minioClient.listObjects(
-//                ListObjectsArgs.builder()
-//                        .bucket("banar")
-//                        .prefix("folder/")
-//                        .build());
-
     }
 
     public List<Element> listElements() {
@@ -75,7 +72,7 @@ public class MinioUtils {
     }
 
     public List<Element> listElements(String folder) {
-        String fullPath = getFullPath(folder);
+        String fullPath = purifyFullPath(folder);
         Iterable<Result<Item>> iterable = minioClient.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(BUCKET)
@@ -84,9 +81,9 @@ public class MinioUtils {
         return convert(iterable);
     }
 
-    private String getFullPath(String folder) {
-        if (folder.contains("ROOT/")) {
-            folder = folder.replace("ROOT/", "");
+    private String purifyFullPath(String folder) {
+        if (folder.contains("ROOT")) {
+            folder = folder.replace("ROOT", "");
         }
         while(folder.contains("//")) {
             folder = folder.replace("//", "/");
@@ -101,6 +98,9 @@ public class MinioUtils {
                 String id = result.get().objectName();
                 String[] split = id.split("/");
                 String name = split[split.length - 1];
+                if (name.equals(emptyFileShortName)) {
+                    continue;
+                }
                 list.add(new Element(
                         name,
                         id,
@@ -112,6 +112,7 @@ public class MinioUtils {
                 | XmlParserException | InternalException | IOException e) {
             e.printStackTrace();
         }
+
         return list;
     }
 
@@ -165,12 +166,39 @@ public class MinioUtils {
         return map;
     }
 
-    public void deleteElement(String fullName) {
+    public void deleteElement(String fullName, boolean isDir) {
         try {
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
+            if (!isDir) {
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(BUCKET)
+                                .object(fullName)
+                                .build());
+            }
+            List<Element> elements = listElements(fullName);
+
+
+            // tb checked why error is thrown + emptyFile txt tb delete when folder deletion
+
+
+            for (Element el : elements) {
+                deleteElement(el.getId(), el.isDir());
+            }
+        } catch (ErrorResponseException | InsufficientDataException | InternalException
+                | InvalidKeyException | InvalidResponseException | IOException
+                | NoSuchAlgorithmException | ServerException | XmlParserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createFolder(String openedFolder, String newFolderName) {
+        String fullFolderName = purifyFullPath(openedFolder + "/" + newFolderName);
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
                             .bucket(BUCKET)
-                            .object(fullName)
+                            .object(fullFolderName + emptyFileShortName)
+                            .stream(new FileInputStream(emptyFileFullName), 0, -1)
                             .build());
         } catch (ErrorResponseException | InsufficientDataException | InternalException
                 | InvalidKeyException | InvalidResponseException | IOException

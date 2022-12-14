@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Folder</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+
+<div class="box-all">
+    <div class="box-body">
+        <form action="/create" method="post">
+            <input type="hidden" th:name="openedFolder" th:value="${openedFolder}">
+
+            <p>Создание папки</p>
+
+            <p><input type="text" name="newFolderName" required></p>
+
+            <p><button type="submit">Отправить</button></p>
+
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -49,12 +49,16 @@ public class FirstController {
 
     @GetMapping()
     public String mainPage(Model model) {
-        List<Element> elements = minioUtils.listElements();
+        List<Element> rawElements = minioUtils.listElements();
+        List<Element> directories = minioUtils.sortElements(rawElements, Element::isDir);
+        List<Element> files = minioUtils.sortElements(rawElements, x -> !x.isDir());
+        boolean isEmpty = directories.isEmpty() && files.isEmpty();
         List<Element> folders = new ArrayList<>();
         folders.add(new Element("ROOT", "", true));
+        model.addAttribute("isEmpty", isEmpty);
         model.addAttribute("folders", folders);
-        model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
-        model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
+        model.addAttribute("directories", directories);
+        model.addAttribute("files", files);
         model.addAttribute("currentPath", "");
         return "mainMinio";
     }
@@ -67,14 +71,18 @@ public class FirstController {
             return "redirect:/";
         }
         String requestedFolder = currentPath + "/" + name;
-        List<Element> elements = minioUtils.listElements(requestedFolder);
+        List<Element> rawElements = minioUtils.listElements(requestedFolder);
+        List<Element> directories = minioUtils.sortElements(rawElements, Element::isDir);
+        List<Element> files = minioUtils.sortElements(rawElements, x -> !x.isDir());
+        boolean isEmpty = directories.isEmpty() && files.isEmpty();
         List<Element> folders = minioUtils.extractOpenFolders(requestedFolder);
         Element openedDir = folders.get(folders.size() - 1);
         String openedFolder = openedDir.getId().concat(name);
+        model.addAttribute("isEmpty", isEmpty);
         model.addAttribute("openedFolder", openedFolder);
         model.addAttribute("folders", folders);
-        model.addAttribute("directories", minioUtils.sortElements(elements, Element::isDir));
-        model.addAttribute("files", minioUtils.sortElements(elements, x -> !x.isDir()));
+        model.addAttribute("directories", directories);
+        model.addAttribute("files", files);
         model.addAttribute("currentPath", requestedFolder);
         return "mainMinio";
     }
@@ -86,9 +94,35 @@ public class FirstController {
         return "uploadPage";
     }
 
+    @PostMapping("/deleteRequest")
+    public String deleteElementRequest(@RequestParam("fullName") String fullName,
+                                @RequestParam("shortName") String shortName,
+                                @RequestParam("isDir") boolean isDir,
+                                Model model) {
+        model.addAttribute("fullName", fullName);
+        model.addAttribute("shortName", shortName);
+        model.addAttribute("isDir", isDir);
+        return "deletePage";
+    }
+
     @PostMapping("/delete")
-    public String deleteElement(@RequestParam("fullName") String fullName) {
-        minioUtils.deleteElement(fullName);
+    public String deleteElement(@RequestParam("fullName") String fullName,
+                                @RequestParam("isDir") boolean isDir) {
+        minioUtils.deleteElement(fullName, isDir);
+        return "redirect:/";
+    }
+
+    @PostMapping("/createRequest")
+    public String createFolderRequest(@RequestParam("openedFolder") String openedFolder,
+                                      Model model) {
+        model.addAttribute("openedFolder", openedFolder);
+        return "createFolder";
+    }
+
+    @PostMapping("/create")
+    public String createFolder(@RequestParam("openedFolder") String openedFolder,
+                               @RequestParam("newFolderName") String newFolderName) {
+        minioUtils.createFolder(openedFolder, newFolderName);
         return "redirect:/";
     }
 
