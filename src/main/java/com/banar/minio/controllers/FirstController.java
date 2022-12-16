@@ -126,7 +126,25 @@ public class FirstController {
         return "redirect:/";
     }
 
+    @PostMapping("/renameRequest")
+    public String renameRequest(@RequestParam("fullName") String fullName,
+                                @RequestParam("shortName") String shortName,
+                                @RequestParam("isDir") boolean isDir,
+                                Model model) {
+        model.addAttribute("fullName", fullName);
+        model.addAttribute("shortName", shortName);
+        model.addAttribute("isDir", isDir);
+        return "renamePage";
+    }
 
+    @PostMapping("/rename")
+    public String rename(@RequestParam("fullName") String fullName,
+                         @RequestParam("shortName") String shortName,
+                         @RequestParam("isDir") boolean isDir,
+                         @RequestParam("newName") String newName) {
+//        minioUtils.rename(shortName, fullName, newName, isDir);
+        return "redirect:/";
+    }
 
 
 }

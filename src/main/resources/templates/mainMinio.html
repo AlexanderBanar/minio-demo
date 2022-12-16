@@ -68,9 +68,12 @@
                 </div>
 
                 <div>
-                    <a th:href="@{/folder/rename/{id}(id=${directory.id})}">
-                        <button class="cont-item-options">переименовать</button>
-                    </a>
+                    <form action="/renameRequest" method="post">
+                        <input type="hidden" th:name="fullName" th:value="${directory.id}">
+                        <input type="hidden" th:name="shortName" th:value="${directory.name}">
+                        <input type="hidden" th:name="isDir" th:value="false">
+                        <button type="submit" class="cont-item-options">переименовать</button>
+                    </form>
                 </div>
 
                 <div>
@@ -97,9 +100,12 @@
                 </div>
 
                 <div>
-                    <a th:href="@{/rename/{id}(id=${file.id})}">
-                        <button class="cont-item-options">переименовать</button>
-                    </a>
+                    <form action="/renameRequest" method="post">
+                        <input type="hidden" th:name="fullName" th:value="${file.id}">
+                        <input type="hidden" th:name="shortName" th:value="${file.name}">
+                        <input type="hidden" th:name="isDir" th:value="false">
+                        <button type="submit" class="cont-item-options">переименовать</button>
+                    </form>
                 </div>
 
                 <div>

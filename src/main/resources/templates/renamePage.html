@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Rename Page</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+
+<div class="box-all">
+    <div class="box-body">
+        <form action="/rename" method="post">
+            <div th:switch="${isDir}">
+                <p th:case="true">Переименовать папку?</p>
+                <p th:case="false">Переименовать файл?</p>
+            </div>
+            <div>
+                <p th:text="${shortName}"></p>
+            </div>
+
+            <div>
+                <p>
+                    <label for="newName">Введите новое имя</label>
+                    <input type="text" name="newName" id="newName">
+                </p>
+            </div>
+
+            <input type="hidden" th:name="shortName" th:value="${shortName}">
+            <input type="hidden" th:name="fullName" th:value="${fullName}">
+            <input type="hidden" th:name="isDir" th:value="${isDir}">
+            <p>
+                <button type="submit">Отправить</button>
+
+                <a href="/">Отмена</a>
+            </p>
+
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

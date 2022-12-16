@@ -33,8 +33,6 @@ public class MinioUtils {
             throws IOException, ServerException, InsufficientDataException, InternalException,
             InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException,
             XmlParserException, ErrorResponseException {
-
-
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(BUCKET)
@@ -43,24 +41,6 @@ public class MinioUtils {
                         .stream(inputStream, inputStream.available(), -1)
                         .build()
         );
-
-        minioClient.removeObject(
-                RemoveObjectArgs.builder()
-                        .bucket(BUCKET)
-                        .object("banar/кон.txt")
-                        .build());
-
-//        Iterable<Result<Item>> results = minioClient.listObjects(
-//                ListObjectsArgs.builder()
-//                        .bucket("banar")
-//                        .build());
-//
-//        for (Result<Item> result : results) {
-//            System.out.println(result.get().objectName());
-//        }
-
-        // чтобы удалить папку - удаляем ее содержимое - далее пустая папка удалится сама автоматически
-
     }
 
     public List<Element> listElements() {
@@ -82,13 +62,14 @@ public class MinioUtils {
     }
 
     private String purifyFullPath(String folder) {
+        folder = folder + "/";
         if (folder.contains("ROOT")) {
             folder = folder.replace("ROOT", "");
         }
         while(folder.contains("//")) {
             folder = folder.replace("//", "/");
         }
-        return folder + "/";
+        return folder;
     }
 
     private List<Element> convert(Iterable<Result<Item>> iterable) {
@@ -174,15 +155,12 @@ public class MinioUtils {
                                 .bucket(BUCKET)
                                 .object(fullName)
                                 .build());
-            }
-            List<Element> elements = listElements(fullName);
-
-
-            // tb checked why error is thrown + emptyFile txt tb delete when folder deletion
-
-
-            for (Element el : elements) {
-                deleteElement(el.getId(), el.isDir());
+            } else {
+                List<Element> elements = listElements(fullName);
+                for (Element el : elements) {
+                    deleteElement(el.getId(), el.isDir());
+                }
+                deleteElement(fullName + emptyFileShortName, false);
             }
         } catch (ErrorResponseException | InsufficientDataException | InternalException
                 | InvalidKeyException | InvalidResponseException | IOException
@@ -206,4 +184,51 @@ public class MinioUtils {
             e.printStackTrace();
         }
     }
+
+//    public void rename(String shortName, String fullName, String newName, boolean isDir) {
+//        fullName = purifyFullPath(fullName);
+//        if (!isDir) {
+//            String newNameFull = fullName.replace(shortName + "/", newName);
+//            fullName = fullName.replace(shortName + "/", shortName);
+//            renameFile(newNameFull, fullName);
+//
+//        } else {
+//            List<Element> elements = listElements(fullName);
+//
+//            for (Element el : elements) {
+//                if (el.isDir()) {
+//                    renameDir();
+//                } else {
+//                    renameFile();
+//                }
+//            }
+//
+//        }
+//
+//
+//
+//    }
+
+    private void renameFile(String newName, String currentName) {
+        try {
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket(BUCKET)
+                            .object(newName)
+                            .source(
+                                    CopySource.builder()
+                                            .bucket(BUCKET)
+                                            .object(currentName)
+                                            .build())
+                            .build());
+            deleteElement(currentName, false);
+        } catch (ErrorResponseException | InsufficientDataException | InternalException
+                | InvalidKeyException | InvalidResponseException | IOException
+                | NoSuchAlgorithmException | ServerException | XmlParserException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }
